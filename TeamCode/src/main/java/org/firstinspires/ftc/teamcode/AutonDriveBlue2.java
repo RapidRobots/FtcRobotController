@@ -188,10 +188,10 @@ public class AutonDriveBlue2 extends LinearOpMode {
             aboslutePower = -1 * aboslutePower;
         }
 
-        rpm = 223 * aboslutePower;
+        rpm = 312 * aboslutePower;
         rpm = rpm/60000;
 
-        seconds = (long) (distance / (rpm * 4.8 * 2 * pi));
+        seconds = (long) (distance / (rpm * 4.8 * pi));
 
         telemetry.addData("Seconds waited", seconds);
         telemetry.update();
@@ -245,7 +245,54 @@ public class AutonDriveBlue2 extends LinearOpMode {
 
 
 
+
+
 */
+    public void thirdLevel() {
+        armRotateMotor.setPower(-0.75);
+
+        sleep(550);
+
+        armRotateMotor.setPower(-0.32);
+
+        armExtendMotor.setPower(0.5);
+
+
+
+        sleep(2000);
+
+        armExtendMotor.setPower(0);
+
+
+        intake_motor.setPower(0.55);
+
+        sleep(320);
+
+        intake_motor.setPower(0);
+
+        intake_motor.setPower(-0.3);
+
+        sleep(50);
+
+        intake_motor.setPower(0.55);
+
+        sleep(100);
+
+        intake_motor.setPower(0);
+
+        armExtendMotor.setPower(-0.3);
+
+        sleep(2500);
+
+        armExtendMotor.setPower(0);
+
+        armRotateMotor.setPower(0.75);
+
+        sleep(450);
+
+        armRotateMotor.setPower(0);
+    }
+
     @Override
     public void runOpMode()
     {
@@ -286,11 +333,9 @@ public class AutonDriveBlue2 extends LinearOpMode {
 
 
 
-        drive(0, 0.5,15);
+        drive(0, -0.5, 9); //30
 
-        drive(0, -0.5, 20); //30
-
-        sleep(10);
+        sleep(20);
 
         //rotate(20);
 
@@ -300,58 +345,63 @@ public class AutonDriveBlue2 extends LinearOpMode {
 
 
 
-        drive(-0.5, 0, 34);
-
-        //drive(-0.5, 0, 30);
-
-        sleep(10);
+        //drive(-0.4, 0, 66);//76
 
 
-        drive(-0.5, 0, 2);
+        //sleep(20);
 
-        drive(0, 0.5, 4);
+        //drive(-0.1, 0, 10);
 
-        sleep(10);
+        //sleep(40);
+
+        drive(-0.3, 0, 20);
+
+        sleep(20);
 
         drive(-0.1, 0, 4);
 
 
 
 
+
+
+
+
+
         //duck
 
-        duck_wheel.setPower(0.25);
+        duck_wheel.setPower(0.35);
 
-        sleep(2600);
+        sleep(3600);
 
         duck_wheel.setPower(1);
 
-        sleep(200);
+        sleep(100);
 
         duck_wheel.setPower(0);
 
 
 
 
-        drive(0, -0.5, 15);
+        drive(0, -0.5, 1.5);
 
-        drive(0.5, 0, 65);
+        drive(0.5, 0, 53.5);
 
         //place object
 
-        rotate(20);
+        rotate(15);//20
 
-        sleep(220);
+        sleep(275);//240 or 245
 
         rotate(0);
 
-        drive(0.5, 0, 5);
+        drive(0.5, 0, 7);
 
         armRotateMotor.setPower(-0.75);
 
         sleep(250);
 
-        armRotateMotor.setPower(0);
+        armRotateMotor.setPower(-0.23);
 
         armExtendMotor.setPower(0.5);
 
@@ -361,7 +411,6 @@ public class AutonDriveBlue2 extends LinearOpMode {
 
         armExtendMotor.setPower(0);
 
-        armRotateMotor.setPower(0);
 
         intake_motor.setPower(0.55);
 
@@ -369,36 +418,46 @@ public class AutonDriveBlue2 extends LinearOpMode {
 
         intake_motor.setPower(0);
 
-        armExtendMotor.setPower(-0.5);
+        intake_motor.setPower(-0.3);
 
-        sleep(2000);
+        sleep(50);
+
+        intake_motor.setPower(0.55);
+
+        sleep(100);
+
+        intake_motor.setPower(0);
+
+        armExtendMotor.setPower(-0.3); // can increase power to gain more time
+
+        sleep(2500);
 
         armExtendMotor.setPower(0);
 
         armRotateMotor.setPower(0.75);
 
-        sleep(250);
+        sleep(450);
 
         armRotateMotor.setPower(0);
 
 
         //do the putting of an object here in place of wait
 
-        rotate(-20);
+        rotate(-15);
 
-        sleep(220);
+        sleep(280);
 
         rotate(0);
 
-        drive(0.5, 0, 30);
+        drive(0.5, 0, 25);
 
-        drive(0, 0.5, 120);
+        drive(0, 0.5, 70);
 
-        drive(0.5, 0, 100);
+        drive(0.5, 0, 48);
 
         sleep(100);
 
-        drive(0.75, 0, 20);
+        drive(0, -0.75, 40);
 
 
 
@@ -439,7 +498,6 @@ public class AutonDriveBlue2 extends LinearOpMode {
         drive(0.5,0);
 */
         stop();
-
 
     }
 

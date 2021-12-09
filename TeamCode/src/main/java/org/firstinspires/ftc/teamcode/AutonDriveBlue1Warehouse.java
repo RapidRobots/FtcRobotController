@@ -188,10 +188,10 @@ public class AutonDriveBlue1Warehouse extends LinearOpMode {
             aboslutePower = -1 * aboslutePower;
         }
 
-        rpm = 223 * aboslutePower;
+        rpm = 312 * aboslutePower;
         rpm = rpm/60000;
 
-        seconds = (long) (distance / (rpm * 4.8 * 2 * pi));
+        seconds = (long) (distance / (rpm * 4.8 * pi));
 
         telemetry.addData("Seconds waited", seconds);
         telemetry.update();
@@ -286,11 +286,11 @@ public class AutonDriveBlue1Warehouse extends LinearOpMode {
 
 
 
-        drive(0.5,0, 150); //30
+        drive(0.5,0, 48); //30
 
-        drive(0,-0.5,30);
+        drive(0,-0.75,45);
 
-        drive(0.5, 0, 50);
+        //drive(0.5, 0, 50);
 
         stop();
 

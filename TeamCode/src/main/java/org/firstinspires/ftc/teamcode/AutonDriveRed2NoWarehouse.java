@@ -15,6 +15,17 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
+import java.util.List;
+
 @Autonomous(name="AutonDriveRed2NoWareHouse")
 public class AutonDriveRed2NoWarehouse extends LinearOpMode {
 
@@ -35,17 +46,32 @@ public class AutonDriveRed2NoWarehouse extends LinearOpMode {
 
     Servo testServo = null;
 
+    VuforiaLocalizer vuforia;
+
+    //private static final String VuforiaKey = "AQrweKT/////AAABmfGLU6H8MEELm2BTAek9b+87guSTZjWYdPT1knha8bvXCCnEjJZEQgf3H/1ihJQBKebprWzDjLzJOfxd0w0ymlUfDCPAKeL8zego9ygXmmSIL3O3nsdXBhvHk/Xongekt0cVx0T8GnxtIzoT5/TUb1a2tQKLiFt21tTp7Tv9szA24Qxohy2/FdeYnrCzVggzkvJCpX7WLq8ngpSvuFmOLLqCJD9nsWA6RpVFvzf7lwKb8h0D14hJjGZ+tEDOk9SZdgeeXz0qxzPkdbigahPtUIMVTUa5XddeQjqRJs4UTVV1A5F6xgs69DPmuYQYrkqf6S6bAaYM04saDi9rLnOU1lnab1eydvcgh4FR3lfbv4sf";
+    private static final String VuforiaKey = "AYRWR1z/////AAABmeQwx0Bqr096gAuPNN5jPz9y+lnWq5+/PIm5KtheQrWvW4dJeJkjRP0ZdSfZsQIJmkRkwk4ITXhDRACou0FVU4Iw7cdSyiCA+GQ/9N8NWuj/H6R4CW5fbclsM00VUqKU9iRCkNJlTpV8f+ZyorVpZ25GHmfcthy7M8zbKcQVzER5Ttl58GAW7mZLb7YyeAmJyV40h07xmjmj9TTcjJj8Gv6TVYEkH46Pgr92nCdRvPYbQTGNhQ4lWYXpMc6ILCKsuMt3vLHRDZHoeZvOTibBFcrHwN7oBp+Mi3aHQe5qeZuikeagoDqZ7YFSMBw2LOINQnTwsQ36iEsx2H+eP3VovINvfWWS5VEiCg2ysESEA/dV";
+    private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+    private static final String[] LABELS = {
+            "Ball",
+            "Cube",
+            "Duck",
+            "Marker"
+    };
+    private TFObjectDetector tfod;
+
+
+    WebcamName webcamName;
+
+
+
+
+
     //BNO055IMU imu;
 
 
     double topLeftDiagonal;
     double topRightDiagonal;
 
-    double leftSpeed;
-    double rightSpeed;
-
-    boolean duckSpin;
-    double duckPower;
 
     //ModernRoboticsI2cGyro gyro = null;
 
@@ -62,6 +88,42 @@ public class AutonDriveRed2NoWarehouse extends LinearOpMode {
 
 
 
+
+
+
+
+    VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+    private void initVuforia() {
+        /*
+         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+         */
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VuforiaKey;
+
+
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        //  Instantiate the Vuforia engine
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        // Loading trackables is not necessary for the TensorFlow Object Detection engine.
+    }
+
+    /**
+     * Initialize the TensorFlow Object Detection engine.
+     */
+    private void initTfod() {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.8f;
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 320;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
+    }
 
     private void drive(double forward, double strafe, double dist)
     {
@@ -194,10 +256,10 @@ public class AutonDriveRed2NoWarehouse extends LinearOpMode {
             aboslutePower = -1 * aboslutePower;
         }
 
-        rpm = 435 * aboslutePower;
+        rpm = 312 * aboslutePower;
         rpm = rpm/60000;
 
-        seconds = (long) (distanceInches / (rpm * 3.77952755906 * pi));
+        seconds = (long) (distanceInches / (rpm * 4.8 * pi));
         //in inches
 
         telemetry.addData("Seconds waited", seconds);
@@ -207,6 +269,38 @@ public class AutonDriveRed2NoWarehouse extends LinearOpMode {
         return seconds;
 
     }
+
+
+    public void vuforiaDetect() {
+
+    }
+
+    public void vuforiaDetect2() {
+        if (opModeIsActive()) {
+            while (opModeIsActive()) {
+                if (tfod != null) {
+                    // getUpdatedRecognitions() will return null if no new information is available since
+                    // the last time that call was made.
+                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    if (updatedRecognitions != null) {
+                        telemetry.addData("# Object Detected", updatedRecognitions.size());
+                        // step through the list of recognitions and display boundary info.
+                        int i = 0;
+                        for (Recognition recognition : updatedRecognitions) {
+                            telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                            telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                    recognition.getLeft(), recognition.getTop());
+                            telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                    recognition.getRight(), recognition.getBottom());
+                            i++;
+                        }
+                        telemetry.update();
+                    }
+                }
+            }
+        }
+    }
+
 
 
 
@@ -280,6 +374,16 @@ public class AutonDriveRed2NoWarehouse extends LinearOpMode {
         leftBackMotor = hardwareMap.dcMotor.get("left_rear");
         rightBackMotor = hardwareMap.dcMotor.get("right_rear");
 
+        webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+
+        parameters.cameraName = webcamName;
+        this.vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+
+
         duck_wheel = hardwareMap.dcMotor.get("duck_wheel");
 
         armRotateMotor = hardwareMap.dcMotor.get("arm_rotate");
@@ -290,9 +394,38 @@ public class AutonDriveRed2NoWarehouse extends LinearOpMode {
         testServo = hardwareMap.servo.get("test_servo");
 
 
+        // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
+        // first.
+        initVuforia();
+        initTfod();
+
+        /**
+         * Activate TensorFlow Object Detection before we wait for the start command.
+         * Do it here so that the Camera Stream window will have the TensorFlow annotations visible.
+         **/
+
+        if (tfod != null) {
+            tfod.activate();
+
+            // The TensorFlow software will scale the input images from the camera to a lower resolution.
+            // This can result in lower detection accuracy at longer distances (> 55cm or 22").
+            // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
+            // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
+            // should be set to the value of the images used to create the TensorFlow Object Detection model
+            // (typically 16/9).
+            tfod.setZoom(2.5, 16.0 / 9.0);
+        }
+
+
         waitForStart();
 
-        drive(0.5,0,8);
+        parameters.vuforiaLicenseKey = "AYRWR1z/////AAABmeQwx0Bqr096gAuPNN5jPz9y+lnWq5+/PIm5KtheQrWvW4dJeJkjRP0ZdSfZsQIJmkRkwk4ITXhDRACou0FVU4Iw7cdSyiCA+GQ/9N8NWuj/H6R4CW5fbclsM00VUqKU9iRCkNJlTpV8f+ZyorVpZ25GHmfcthy7M8zbKcQVzER5Ttl58GAW7mZLb7YyeAmJyV40h07xmjmj9TTcjJj8Gv6TVYEkH46Pgr92nCdRvPYbQTGNhQ4lWYXpMc6ILCKsuMt3vLHRDZHoeZvOTibBFcrHwN7oBp+Mi3aHQe5qeZuikeagoDqZ7YFSMBw2LOINQnTwsQ36iEsx2H+eP3VovINvfWWS5VEiCg2ysESEA/dV";
+
+
+
+        vuforiaDetect2();
+
+        /*drive(0.5,0,8);
 
         drive(0,0.5,45);
 
@@ -370,7 +503,7 @@ public class AutonDriveRed2NoWarehouse extends LinearOpMode {
 
         //end of place object
 
-        drive(-0.25, 0.5, 30);
+        drive(-0.25, 0.5, 30);*/
 
         stop();
 

@@ -10,15 +10,21 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import android.graphics.Color;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
-@Autonomous(name="AutonDriveRed1")
-public class AutonDriveRed1 extends LinearOpMode {
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
+import java.util.List;
+
+@Autonomous(name="AutonDriveRed2NoWareHouseNoVuforia")
+public class AutonDriveRed2NoWarehouseNoVuforia extends LinearOpMode {
 
 
 
@@ -35,7 +41,9 @@ public class AutonDriveRed1 extends LinearOpMode {
 
     DcMotor intake_motor;
 
-    ColorSensor colorSensor;
+    Servo testServo = null;
+
+
 
     //BNO055IMU imu;
 
@@ -43,13 +51,6 @@ public class AutonDriveRed1 extends LinearOpMode {
     double topLeftDiagonal;
     double topRightDiagonal;
 
-    double leftSpeed;
-    double rightSpeed;
-
-    boolean duckSpin;
-    double duckPower;
-
-    int position = 0;
 
     //ModernRoboticsI2cGyro gyro = null;
 
@@ -67,6 +68,10 @@ public class AutonDriveRed1 extends LinearOpMode {
 
 
 
+
+
+
+
     private void drive(double forward, double strafe, double dist)
     {
 
@@ -78,6 +83,9 @@ public class AutonDriveRed1 extends LinearOpMode {
 
         rightFrontMotor.setPower(topRightDiagonal);//-
         leftBackMotor.setPower(-topRightDiagonal);
+
+        telemetry.addData("power", topLeftDiagonal);
+        telemetry.update();
 
 
 
@@ -209,81 +217,7 @@ public class AutonDriveRed1 extends LinearOpMode {
 
     }
 
-    /*public double getError(double targetAngle) {
 
-        double robotError;
-
-        // calculate error in -179 to +180 range  (
-        robotError = targetAngle - gyro.getIntegratedZValue();
-        while (robotError > 180)  robotError -= 360;
-        while (robotError <= -180) robotError += 360;
-        return robotError;
-    }
-
-    public double getSteer(double error, double PCoeff) {
-        return Range.clip(error * PCoeff, -1, 1);
-    }
-
-    boolean onHeading(double speed, double angle, double PCoeff) {
-        double error;
-        double steer;
-        boolean onTarget = false;
-
-
-        // determine turn power based on +/- error
-        error = getError(angle);
-
-        if (Math.abs(error) <= 1) {
-            steer = 0.0;
-            leftSpeed = 0.0;
-            rightSpeed = 0.0;
-            onTarget = true;
-        } else {
-            steer = getSteer(error, PCoeff);
-            rightSpeed = speed * steer;
-            leftSpeed = rightSpeed;
-        }
-
-        return onTarget;
-
-    }
-
-
-
-
-
-
-
-
-*/
-    public boolean detectGreen() {
-        int red = colorSensor.red();
-        int blue = colorSensor.blue();
-        int green = colorSensor.green();
-
-        boolean greenCheck = false;
-
-
-        float hsb[] = new float[3];
-
-        Color.RGBToHSV(red, green, blue, hsb);
-
-            /*telemetry.addData("Blue - Red", blue - red);
-            telemetry.addData("Red - Blue", red - blue);
-            telemetry.addData("Blue + Red/divident", greenCheck);*/
-
-
-
-        telemetry.addData("Hue : ", hsb[0]);
-        telemetry.addData("Saturation : ", hsb[1]);
-        telemetry.addData("Brightness : ", hsb[2]);
-
-        if (hsb[0] > 100 && 130 > hsb[0]) {
-            telemetry.addData("This is ", "green");
-            greenCheck = true;
-        }
-        return greenCheck;
-    }
 
     @Override
     public void runOpMode()
@@ -310,6 +244,8 @@ public class AutonDriveRed1 extends LinearOpMode {
         leftBackMotor = hardwareMap.dcMotor.get("left_rear");
         rightBackMotor = hardwareMap.dcMotor.get("right_rear");
 
+
+
         duck_wheel = hardwareMap.dcMotor.get("duck_wheel");
 
         armRotateMotor = hardwareMap.dcMotor.get("arm_rotate");
@@ -317,76 +253,27 @@ public class AutonDriveRed1 extends LinearOpMode {
 
         intake_motor = hardwareMap.dcMotor.get("intake_motor");
 
-        colorSensor = hardwareMap.colorSensor.get("color_sensor");
+        testServo = hardwareMap.servo.get("test_servo");
 
 
-        waitForStart();
 
-        drive(-0.2, 0, 2);
+        drive(0.5,0,8);
 
+        drive(0,0.5,45);
 
-        drive(0.5, 0, 7.5);
+        sleep(50);
 
-        drive(0, 0.5, 92);//110
-
-        for(int i = 0; i < 18  && opModeIsActive(); i++) {
-
-            drive(-0.4, 1, 0);
-
-            if (detectGreen()) {
-                if(5 < i && i < 12) {
-                    position = 1;
-
-                }
-                if(12 < i && i < 22) {
-                    position = 2;
-                }
-                if(22 < i && i < 30) {
-                    position = 3;
-                }
-
-                if (position == 0) {
-                    telemetry.addData("Not found", position);
-                }
-            }
-
-
-        }
-        telemetry.addData("Position", position);
-
-        telemetry.update();
-
-        //drive(-0.2, 0, 2);
-
-        //drive(0.5, 0, 6);
-
-
-        drive(0, 0.2, 35);//14
-
-        sleep(10);
-
-        drive(0, 0.1, 10);
-
-        sleep(10);
+        drive(0, 0.25, 10);
 
 
 
 
 
-        /*rotate(-20);
-
-        sleep(150);
-
-        rotate(0);*/
-
-
-
-
-        //duck
+        //duck start
 
         duck_wheel.setPower(-0.25);
 
-        sleep(3100);
+        sleep(2600);
 
         duck_wheel.setPower(-1);
 
@@ -394,40 +281,29 @@ public class AutonDriveRed1 extends LinearOpMode {
 
         duck_wheel.setPower(0);
 
+        //duck end
+
         rotate(20);
 
-        sleep(50);
+        sleep(280);
 
         rotate(0);
 
+        //align for hub
 
-        drive(0, -0.5, 87.5);
+        drive(0.75,0,35);
 
+        //place object
 
+        double pos = 0.5;
 
+        testServo.setPosition(pos);
 
+        armRotateMotor.setPower(-1);
 
+        sleep(200);
 
-        /*rotate(20);
-
-        sleep(150);
-
-        rotate(0);
-*/
-
-
-
-
-
-        //place object s
-
-        drive(0.5, 0, 8.5);
-
-        armRotateMotor.setPower(-0.75);
-
-        sleep(150);
-
-        armRotateMotor.setPower(-0.2);
+        armRotateMotor.setPower(0);
 
         armExtendMotor.setPower(0.5);
 
@@ -437,11 +313,11 @@ public class AutonDriveRed1 extends LinearOpMode {
 
         armExtendMotor.setPower(0);
 
-        armRotateMotor.setPower(-0.22);
+        armRotateMotor.setPower(0);
 
-        intake_motor.setPower(0.45);
+        intake_motor.setPower(0.55);
 
-        sleep(320);
+        sleep(520);
 
         intake_motor.setPower(0);
 
@@ -457,25 +333,9 @@ public class AutonDriveRed1 extends LinearOpMode {
 
         armRotateMotor.setPower(0);
 
+        //end of place object
 
-        //do the putting of an object here in place of wait
-
-
-
-        drive(0, -0.5, 30);
-
-        rotate(20);
-
-        sleep(280);
-
-        rotate(0);
-
-        drive(0, -0.5, 55);
-
-        drive(0.5, 0, 48.5);
-
-        drive(0, 0.5, 65);
-
+        drive(-0.25, 0.5, 30);
 
         stop();
 

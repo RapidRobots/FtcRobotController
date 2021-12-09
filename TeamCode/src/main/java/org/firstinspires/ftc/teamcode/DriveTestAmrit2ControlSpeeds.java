@@ -7,26 +7,19 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 //importing the DcMotors and the OpMode
 
 
-@TeleOp(name="DriveTestAmrit2")
-public class DriveTestAmrit2 extends OpMode {
-
-    int duckCounter;
-
-    boolean capPressed;
+@TeleOp(name="DriveTestAmrit2ControlSpeeds")
+public class DriveTestAmrit2ControlSpeeds extends OpMode {
 
     DcMotor leftFrontMotor = null;
     DcMotor rightFrontMotor = null;
     DcMotor leftBackMotor = null;
     DcMotor rightBackMotor = null;
     DcMotor intakeMotor = null;
-
-    double capSpeed;
 
     DcMotor armRotateMotor = null;
     DcMotor armExtendMotor = null;
@@ -58,6 +51,8 @@ public class DriveTestAmrit2 extends OpMode {
     boolean duckSpin2;
     double duckPower;
 
+    double capSpeed;
+
 
     double intakePower;
 
@@ -75,6 +70,10 @@ public class DriveTestAmrit2 extends OpMode {
 
     boolean touchExtend;
     boolean touchRetract;
+
+    boolean capPressed;
+
+
 
 
 
@@ -115,11 +114,8 @@ public class DriveTestAmrit2 extends OpMode {
 
         touch_extend = hardwareMap.touchSensor.get("touch_extend");
         touch_retract = hardwareMap.touchSensor.get("touch_retract");
-
         capPressed = false;
         capSpeed = 0.75;
-
-
 
     }
 
@@ -131,6 +127,10 @@ public class DriveTestAmrit2 extends OpMode {
         }
 
 
+
+
+
+
         forward = gamepad1.left_stick_y; // 0
         strafe = gamepad1.left_stick_x; // 1
         rotate = gamepad1.right_stick_x;
@@ -140,16 +140,16 @@ public class DriveTestAmrit2 extends OpMode {
         touchExtend = touch_extend.isPressed();
         touchRetract = touch_retract.isPressed();
 
-        speedCapButton = gamepad1.left_bumper;
-
 
         rotateCheck = gamepad2.a;
 
-        servoCheck = gamepad2.right_bumper;
 
         intakePressneg = gamepad2.right_trigger;
 
         intakePresspos = gamepad2.left_trigger;
+
+
+
 
 
 
@@ -168,7 +168,7 @@ public class DriveTestAmrit2 extends OpMode {
             forward = 0;
         }*/
 
-        intakePower = gamepad1.right_trigger;
+
 
         topLeftDiagonal = forward - strafe; // + =
         topRightDiagonal = forward + strafe;//- =
@@ -210,6 +210,8 @@ public class DriveTestAmrit2 extends OpMode {
             leftBackMotor.setPower(-rotate);
         }
 
+
+
         if(speedCapButton == true && capSpeed == 0.25 && capPressed == false) {
             capPressed = true;
             capSpeed = 0.75;
@@ -244,6 +246,8 @@ public class DriveTestAmrit2 extends OpMode {
         {
             topRightDiagonal = -capSpeed;
         }
+        telemetry.addData("TopLeftDiagonal",topLeftDiagonal);
+        telemetry.addData("TopRightDiagonal",topRightDiagonal);
 
         if (intakePresspos > 0) {
 
@@ -266,6 +270,8 @@ public class DriveTestAmrit2 extends OpMode {
         if (intakePower < -1) {
             intakePower = -1;
         }
+
+
 
 
 
@@ -337,31 +343,17 @@ public class DriveTestAmrit2 extends OpMode {
 
 
         if (duckSpin == true) {
-            duckPower = 0.35;
-            duckCounter +=1;
-            if (duckCounter == 300) {
-                duckPower = 0.5;
-
-            }
-            telemetry.addData("Duck Speed", duckPower);
+            duckPower = 0.45;
         }
         if (duckSpin != true && duckSpin2 != true) {
             duckPower = 0;
-            duckCounter = 0;
         }
 
         if (duckSpin2 == true) {
-            duckPower = -0.35;
-            duckCounter +=1;
-            if (duckCounter == 300) {
-                duckPower = -0.5;
-
-            }
-            telemetry.addData("Duck Speed", duckPower);
+            duckPower = -0.45;
         }
         if (duckSpin2 != true && duckSpin != true) {
             duckPower = 0;
-            duckCounter = 0;
         }
 
         if (gamepad2.a == true) {

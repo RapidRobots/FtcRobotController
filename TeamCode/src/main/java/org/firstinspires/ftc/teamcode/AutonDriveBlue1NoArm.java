@@ -10,15 +10,12 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import android.graphics.Color;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name="AutonDriveRed1")
-public class AutonDriveRed1 extends LinearOpMode {
+@Autonomous(name="AutonDriveBlue1NoArm")
+public class AutonDriveBlue1NoArm extends LinearOpMode {
 
 
 
@@ -35,8 +32,6 @@ public class AutonDriveRed1 extends LinearOpMode {
 
     DcMotor intake_motor;
 
-    ColorSensor colorSensor;
-
     //BNO055IMU imu;
 
 
@@ -48,8 +43,6 @@ public class AutonDriveRed1 extends LinearOpMode {
 
     boolean duckSpin;
     double duckPower;
-
-    int position = 0;
 
     //ModernRoboticsI2cGyro gyro = null;
 
@@ -188,7 +181,7 @@ public class AutonDriveRed1 extends LinearOpMode {
     }
 
 
-    public long distanceCalc(double distanceInches) {
+    public long distanceCalc(double distance) {
         aboslutePower = topLeftDiagonal;
 
         if (aboslutePower < 0) {
@@ -198,8 +191,7 @@ public class AutonDriveRed1 extends LinearOpMode {
         rpm = 312 * aboslutePower;
         rpm = rpm/60000;
 
-        seconds = (long) (distanceInches / (rpm * 4.8 * pi));
-        //in inches
+        seconds = (long) (distance / (rpm * 4.8 * pi));
 
         telemetry.addData("Seconds waited", seconds);
         telemetry.update();
@@ -256,33 +248,49 @@ public class AutonDriveRed1 extends LinearOpMode {
 
 
 */
-    public boolean detectGreen() {
-        int red = colorSensor.red();
-        int blue = colorSensor.blue();
-        int green = colorSensor.green();
+    public void thirdLevel() {
+        armRotateMotor.setPower(-0.75);
 
-        boolean greenCheck = false;
+        sleep(550);
 
+        armRotateMotor.setPower(-0.32);
 
-        float hsb[] = new float[3];
-
-        Color.RGBToHSV(red, green, blue, hsb);
-
-            /*telemetry.addData("Blue - Red", blue - red);
-            telemetry.addData("Red - Blue", red - blue);
-            telemetry.addData("Blue + Red/divident", greenCheck);*/
+        armExtendMotor.setPower(0.5);
 
 
 
-        telemetry.addData("Hue : ", hsb[0]);
-        telemetry.addData("Saturation : ", hsb[1]);
-        telemetry.addData("Brightness : ", hsb[2]);
+        sleep(2000);
 
-        if (hsb[0] > 100 && 130 > hsb[0]) {
-            telemetry.addData("This is ", "green");
-            greenCheck = true;
-        }
-        return greenCheck;
+        armExtendMotor.setPower(0);
+
+
+        intake_motor.setPower(0.55);
+
+        sleep(320);
+
+        intake_motor.setPower(0);
+
+        intake_motor.setPower(-0.3);
+
+        sleep(50);
+
+        intake_motor.setPower(0.55);
+
+        sleep(100);
+
+        intake_motor.setPower(0);
+
+        armExtendMotor.setPower(-0.3);
+
+        sleep(2500);
+
+        armExtendMotor.setPower(0);
+
+        armRotateMotor.setPower(0.75);
+
+        sleep(450);
+
+        armRotateMotor.setPower(0);
     }
 
     @Override
@@ -317,117 +325,79 @@ public class AutonDriveRed1 extends LinearOpMode {
 
         intake_motor = hardwareMap.dcMotor.get("intake_motor");
 
-        colorSensor = hardwareMap.colorSensor.get("color_sensor");
-
 
         waitForStart();
 
-        drive(-0.2, 0, 2);
+
+        //imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
 
-        drive(0.5, 0, 7.5);
 
-        drive(0, 0.5, 92);//110
+        drive(0, -0.5, 14); //30
 
-        for(int i = 0; i < 18  && opModeIsActive(); i++) {
+        sleep(20);
 
-            drive(-0.4, 1, 0);
+        //rotate(20);
 
-            if (detectGreen()) {
-                if(5 < i && i < 12) {
-                    position = 1;
+        //sleep(5);
 
-                }
-                if(12 < i && i < 22) {
-                    position = 2;
-                }
-                if(22 < i && i < 30) {
-                    position = 3;
-                }
-
-                if (position == 0) {
-                    telemetry.addData("Not found", position);
-                }
-            }
+        //rotate(0);
 
 
-        }
-        telemetry.addData("Position", position);
 
-        telemetry.update();
-
-        //drive(-0.2, 0, 2);
-
-        //drive(0.5, 0, 6);
+        drive(-0.4, 0, 66);//76
 
 
-        drive(0, 0.2, 35);//14
+        sleep(20);
 
-        sleep(10);
+        drive(-0.1, 0, 10);
 
-        drive(0, 0.1, 10);
+        sleep(40);
 
-        sleep(10);
+        drive(-0.1, 0, 10);
 
 
 
 
 
-        /*rotate(-20);
-
-        sleep(150);
-
-        rotate(0);*/
 
 
 
 
         //duck
 
-        duck_wheel.setPower(-0.25);
+        duck_wheel.setPower(0.25);
 
-        sleep(3100);
+        sleep(3600);
 
-        duck_wheel.setPower(-1);
+        duck_wheel.setPower(1);
 
-        sleep(500);
+        sleep(100);
 
         duck_wheel.setPower(0);
 
-        rotate(20);
-
-        sleep(50);
-
-        rotate(0);
-
-
-        drive(0, -0.5, 87.5);
 
 
 
+        drive(0, -0.5, 6.5);
 
+        drive(0.5, 0, 53.5);
 
+        //place object
 
-        /*rotate(20);
+        /*rotate(15);//20
 
-        sleep(150);
+        sleep(275);//240 or 245
 
         rotate(0);
-*/
 
-
-
-
-
-        //place object s
-
-        drive(0.5, 0, 8.5);
+        drive(0.5, 0, 7);
 
         armRotateMotor.setPower(-0.75);
 
-        sleep(150);
+        sleep(250);
 
-        armRotateMotor.setPower(-0.2);
+        armRotateMotor.setPower(-0.32);
 
         armExtendMotor.setPower(0.5);
 
@@ -437,46 +407,92 @@ public class AutonDriveRed1 extends LinearOpMode {
 
         armExtendMotor.setPower(0);
 
-        armRotateMotor.setPower(-0.22);
 
-        intake_motor.setPower(0.45);
+        intake_motor.setPower(0.55);
 
         sleep(320);
 
         intake_motor.setPower(0);
 
-        armExtendMotor.setPower(-0.5);
+        intake_motor.setPower(-0.3);
 
-        sleep(2000);
+        sleep(50);
+
+        intake_motor.setPower(0.55);
+
+        sleep(100);
+
+        intake_motor.setPower(0);
+
+        armExtendMotor.setPower(-0.3); // can increase power to gain more time
+
+        sleep(2500);
 
         armExtendMotor.setPower(0);
 
         armRotateMotor.setPower(0.75);
 
-        sleep(250);
+        sleep(450);
 
         armRotateMotor.setPower(0);
 
 
         //do the putting of an object here in place of wait
 
-
-
-        drive(0, -0.5, 30);
-
-        rotate(20);
+        rotate(-15);
 
         sleep(280);
 
-        rotate(0);
+        rotate(0);*/
 
-        drive(0, -0.5, 55);
+        drive(0.5, 0, 25);
 
-        drive(0.5, 0, 48.5);
+        drive(0, 0.5, 70);
 
-        drive(0, 0.5, 65);
+        drive(0.5, 0, 48);
+
+        sleep(100);
+
+        drive(0, -0.75, 40);
 
 
+
+        /*Go to alliance shipping hub
+        Go to the wall on the left
+        go to duck
+        spin duck
+        go forward a bit
+        strafe to wall
+        go forward into warehouse
+
+         */
+
+        //Spin Ducky
+/*
+        sleep(2500);
+
+        drive(0, 0.5);
+
+        sleep(1000);
+
+        drive(0.5, 0);
+
+        sleep(2000);
+
+        drive(0, -0.5);
+
+        sleep(1000);
+
+        drive(0.5, 0);
+
+        sleep(2000);
+
+        drive(0,0.5);
+
+        sleep(1000);
+
+        drive(0.5,0);
+*/
         stop();
 
 

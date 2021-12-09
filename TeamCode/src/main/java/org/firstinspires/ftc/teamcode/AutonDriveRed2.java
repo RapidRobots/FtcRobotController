@@ -188,10 +188,10 @@ public class AutonDriveRed2 extends LinearOpMode {
             aboslutePower = -1 * aboslutePower;
         }
 
-        rpm = 435 * aboslutePower;
+        rpm = 312 * aboslutePower;
         rpm = rpm/60000;
 
-        seconds = (long) (distanceInches / (rpm * 3.77952755906 * pi));
+        seconds = (long) (distanceInches / (rpm * 4.8 * pi));
         //in inches
 
         telemetry.addData("Seconds waited", seconds);
@@ -282,40 +282,46 @@ public class AutonDriveRed2 extends LinearOpMode {
 
         waitForStart();
 
-        drive(0, -0.5, 50); //30
+        sleep(2000);
+
+        drive(-0.2, 0, 2);
+
+
+        drive(0.5, 0, 7.5);
+
+        //drive(0, 0.5, 98);//124
+
+        //drive(-0.2, 0, 2);
+
+        //drive(0.5, 0, 6);
+
+
+        drive(0, 0.2, 52);//14
 
         sleep(10);
 
-        drive(-0.5, 0, 44);
-
-        drive(-0.5, 0, 30);
+        drive(0, 0.1, 8);
 
         sleep(10);
 
 
-        drive(-0.5, 0, 2);
-
-        drive(0, -0.5, 4);
-
-        sleep(10);
-
-        drive(-0.1, 0, 4);
 
 
-        rotate(-20);
+
+        /*rotate(-20);
 
         sleep(150);
 
-        rotate(0);
+        rotate(0);*/
 
-        drive(-0.25, 0, 10);
+
 
 
         //duck
 
         duck_wheel.setPower(-0.25);
 
-        sleep(2600);
+        sleep(3100);
 
         duck_wheel.setPower(-1);
 
@@ -325,32 +331,38 @@ public class AutonDriveRed2 extends LinearOpMode {
 
         rotate(20);
 
+        sleep(50);
+
+        rotate(0);
+
+
+        drive(0, -0.5, 78.5);
+
+
+
+
+
+
+        /*rotate(20);
+
         sleep(150);
 
         rotate(0);
+*/
 
 
 
 
-        drive(0, 0.5, 20);
 
-        drive(0.5, 0, 60);
+        //place object s
 
-        //place object
-
-        rotate(-20);
-
-        sleep(240);
-
-        rotate(0);
-
-        drive(0.5, 0, 10);
+        drive(0.5, 0, 7.5);
 
         armRotateMotor.setPower(-0.75);
 
-        sleep(250);
+        sleep(150);
 
-        armRotateMotor.setPower(0);
+        armRotateMotor.setPower(-0.2);
 
         armExtendMotor.setPower(0.5);
 
@@ -360,9 +372,9 @@ public class AutonDriveRed2 extends LinearOpMode {
 
         armExtendMotor.setPower(0);
 
-        armRotateMotor.setPower(0);
+        armRotateMotor.setPower(-0.2);
 
-        intake_motor.setPower(0.55);
+        intake_motor.setPower(0.45);
 
         sleep(320);
 
@@ -383,21 +395,21 @@ public class AutonDriveRed2 extends LinearOpMode {
 
         //do the putting of an object here in place of wait
 
+
+
+        drive(0, -0.5, 30);
+
         rotate(20);
 
         sleep(240);
 
         rotate(0);
 
-        drive(0.5, 0, 30);
+        drive(0, -0.5, 40);
 
-        drive(0, -0.5, 120);
+        drive(0.5, 0, 37.5);
 
-        drive(0.5, 0, 80);
-
-        sleep(100);
-
-        drive(0.75, 0, 10);
+        drive(0, 0.5, 60);
 
 
         stop();

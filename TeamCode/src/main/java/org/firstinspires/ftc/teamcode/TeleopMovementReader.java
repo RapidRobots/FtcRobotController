@@ -2,31 +2,39 @@ package org.firstinspires.ftc.teamcode;
 
 
 
+import android.os.Environment;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ReadWriteFile;
+
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 //importing the DcMotors and the OpMode
 
 
-@TeleOp(name="DriveTestAmrit2")
-public class DriveTestAmrit2 extends OpMode {
+@TeleOp(name="TeleopMovementReader")
+public class TeleopMovementReader extends OpMode {
 
-    int duckCounter;
+    List<String> motorValues = new ArrayList<>();
 
-    boolean capPressed;
+
+    int counter;
 
     DcMotor leftFrontMotor = null;
     DcMotor rightFrontMotor = null;
     DcMotor leftBackMotor = null;
     DcMotor rightBackMotor = null;
     DcMotor intakeMotor = null;
-
-    double capSpeed;
 
     DcMotor armRotateMotor = null;
     DcMotor armExtendMotor = null;
@@ -37,9 +45,13 @@ public class DriveTestAmrit2 extends OpMode {
 
     CRServo armServo;
 
-    TouchSensor touch_extend;
 
-    TouchSensor touch_retract;
+
+    File myObj = new File("FIRST/data","TeleopMovementData.txt");
+
+    FileWriter myWriter =  new FileWriter("FIRST/data/TeleopMovementData.txt");
+
+
 
     double topLeftDiagonal;
     double topRightDiagonal;
@@ -50,6 +62,10 @@ public class DriveTestAmrit2 extends OpMode {
     double armExtend;
     double servoPower = 1;
 
+    double aboslutePower;
+
+    double seconds;
+
     double armRotateStore;
 
     double armRotateSpeed;
@@ -57,6 +73,8 @@ public class DriveTestAmrit2 extends OpMode {
     boolean duckSpin;
     boolean duckSpin2;
     double duckPower;
+
+    double rpm;
 
 
     double intakePower;
@@ -73,9 +91,6 @@ public class DriveTestAmrit2 extends OpMode {
 
     double intakePressneg;
 
-    boolean touchExtend;
-    boolean touchRetract;
-
 
 
 
@@ -86,12 +101,79 @@ public class DriveTestAmrit2 extends OpMode {
 
     boolean speedCapButton;
 
-
-
-
+    public TeleopMovementReader() throws IOException {
+    }
 
 
     //setting up the DcMotors
+
+
+
+    private void drive(double forward, double strafe, double dist)
+    {
+
+        topLeftDiagonal = forward - strafe; // + =
+        topRightDiagonal = forward + strafe;//- =
+
+        leftFrontMotor.setPower(-topLeftDiagonal);
+        rightBackMotor.setPower(topLeftDiagonal);//-
+
+        rightFrontMotor.setPower(topRightDiagonal);//-
+        leftBackMotor.setPower(-topRightDiagonal);
+
+
+
+        seconds = distanceCalc(dist);
+
+        //Orientation angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        /*for (int i = 0; i < seconds + 1; i++) {
+            if (onHeading(0.75, )) {
+                onHeading(0.75,0,0.1);
+
+            }
+            sleep(1);
+        }*/
+
+
+
+
+
+
+
+
+        leftFrontMotor.setPower(0);
+        rightBackMotor.setPower(0);//-
+
+        rightFrontMotor.setPower(0);//-
+        leftBackMotor.setPower(0);
+
+
+
+
+
+    }
+
+    public long distanceCalc(double distanceInches) {
+        aboslutePower = topLeftDiagonal;
+
+        if (aboslutePower < 0) {
+            aboslutePower = -1 * aboslutePower;
+        }
+
+        rpm = 435 * aboslutePower;
+        rpm = rpm/60000;
+
+        seconds = (long) (distanceInches / (rpm * 3.77952755906 * 3.1415));
+        //in inches
+
+        telemetry.addData("Seconds waited", seconds);
+        telemetry.update();
+
+        //radius = 4.8cm
+        return (long) seconds;
+
+    }
 
 
 
@@ -113,11 +195,26 @@ public class DriveTestAmrit2 extends OpMode {
 
         intake_motor = hardwareMap.dcMotor.get("intake_motor");
 
-        touch_extend = hardwareMap.touchSensor.get("touch_extend");
-        touch_retract = hardwareMap.touchSensor.get("touch_retract");
+        try {
+            myObj.createNewFile();
+        } catch (IOException e) {
+            telemetry.addData("error", e);
+        }
 
-        capPressed = false;
-        capSpeed = 0.75;
+
+        try {
+
+            if (myObj.createNewFile()) {
+                telemetry.addData("created!", "_");
+                telemetry.update();
+            } else {
+                telemetry.addData("exists", "-");
+                telemetry.update();
+            }
+        } catch (IOException e) {
+            telemetry.addData("error", e);
+            telemetry.update();
+        }
 
 
 
@@ -126,66 +223,19 @@ public class DriveTestAmrit2 extends OpMode {
     @Override
     public void loop() {
 
-        if(speedCapButton == false) {
-            capPressed = false;
-        }
+
 
 
         forward = gamepad1.left_stick_y; // 0
         strafe = gamepad1.left_stick_x; // 1
         rotate = gamepad1.right_stick_x;
-        armRotateSpeed = gamepad2.left_stick_y;
-        armExtend = gamepad2.right_stick_y;
-
-        touchExtend = touch_extend.isPressed();
-        touchRetract = touch_retract.isPressed();
-
-        speedCapButton = gamepad1.left_bumper;
-
-
-        rotateCheck = gamepad2.a;
-
-        servoCheck = gamepad2.right_bumper;
-
-        intakePressneg = gamepad2.right_trigger;
-
-        intakePresspos = gamepad2.left_trigger;
 
 
 
-        duckSpin = gamepad1.x;
 
-        duckSpin2 = gamepad1.b;
-
-
-
-        speedCapButton = gamepad1.left_bumper;
-        //intakeCheck = gamepad1.a;
-
-        //Button X is ducky
-
-        /*if (forward < 0 && objectDetect == true) {
-            forward = 0;
-        }*/
-
-        intakePower = gamepad1.right_trigger;
 
         topLeftDiagonal = forward - strafe; // + =
         topRightDiagonal = forward + strafe;//- =
-
-        /*if (speedCapButton) {
-            if (speedCap == 0.75 && changed != true) {
-                speedCap = 0.5;
-                 changed = true;
-            }
-            if (speedCap == 0.5 && changed != true) {
-                speedCap = 0.75;
-            }
-
-
-
-        }*/
-
 
 
         if (rotate > 0) {
@@ -210,48 +260,30 @@ public class DriveTestAmrit2 extends OpMode {
             leftBackMotor.setPower(-rotate);
         }
 
-        if(speedCapButton == true && capSpeed == 0.25 && capPressed == false) {
-            capPressed = true;
-            capSpeed = 0.75;
-            telemetry.addData("Speed : ", capSpeed);
-
-
-        }
-
-        if(speedCapButton == true && capSpeed == 0.75 && capPressed == false) {
-            capPressed = true;
-            capSpeed = 0.25;
-            telemetry.addData("Speed : ", capSpeed);
-
-        }
-
-        telemetry.addData("Speed : ", capSpeed);
-
-        if (topLeftDiagonal > capSpeed)
+        if (topLeftDiagonal > 0.75)
         {
-            topLeftDiagonal = capSpeed;
-            telemetry.addData("TopLeftDiagonal",topLeftDiagonal);
+            topLeftDiagonal = 0.75;
         }
-        if (topLeftDiagonal < -capSpeed)
+        if (topLeftDiagonal < -0.75)
         {
-            topLeftDiagonal = -capSpeed;
+            topLeftDiagonal = -0.75;
         }
-        if (topRightDiagonal > capSpeed)
+        if (topRightDiagonal > 0.75)
         {
-            topRightDiagonal = capSpeed;
+            topRightDiagonal = 0.75;
         }
-        if (topRightDiagonal < -capSpeed)
+        if (topLeftDiagonal < -0.75)
         {
-            topRightDiagonal = -capSpeed;
+            topLeftDiagonal = -0.75;
         }
 
         if (intakePresspos > 0) {
 
-            intakePower = 1;
+            intakePower = 0.5;
         }
         if (intakePressneg > 0) {
 
-            intakePower = -0.38;
+            intakePower = -0.5;
 
         }
 
@@ -269,12 +301,12 @@ public class DriveTestAmrit2 extends OpMode {
 
 
 
-        if (armRotateSpeed < -0.5) {
-            armRotateSpeed = -0.5;
+        if (armRotateSpeed < -0.3) {
+            armRotateSpeed = -0.3;
             armRotate = armRotateSpeed;
         }
-        if (armRotateSpeed > 0.5) {
-            armRotateSpeed = 0.5;
+        if (armRotateSpeed > 0.3) {
+            armRotateSpeed = 0.3;
             armRotate = armRotateSpeed;
 
         }
@@ -293,29 +325,10 @@ public class DriveTestAmrit2 extends OpMode {
 
 
         if (armExtend > 0) {
-            if (touch_extend.isPressed() == false) {
-                armExtend = 1;
-            }
-            if (touch_extend.isPressed() == true) {
-                armExtend = 0;
-                telemetry.addData("Extend", armExtend);
-
-            }
+            armExtend = 0.4;
         }
         if (armExtend < 0) {
-            if (touch_retract.isPressed() == false) {
-                armExtend = -1;
-            }
-            if (touch_retract.isPressed() == true) {
-                armExtend = 0;
-                telemetry.addData("Retract", armExtend);
-
-            }
-        }
-
-        if (touch_extend.isPressed() == false && touch_retract.isPressed() == false) {
-            telemetry.addData("Moving", armExtend);
-
+            armExtend = -0.4;
         }
 
 
@@ -337,37 +350,17 @@ public class DriveTestAmrit2 extends OpMode {
 
 
         if (duckSpin == true) {
-            duckPower = 0.35;
-            duckCounter +=1;
-            if (duckCounter == 300) {
-                duckPower = 0.5;
-
-            }
-            telemetry.addData("Duck Speed", duckPower);
+            duckPower = 0.55;
         }
-        if (duckSpin != true && duckSpin2 != true) {
+        if (duckSpin != true) {
             duckPower = 0;
-            duckCounter = 0;
         }
 
         if (duckSpin2 == true) {
-            duckPower = -0.35;
-            duckCounter +=1;
-            if (duckCounter == 300) {
-                duckPower = -0.5;
-
-            }
-            telemetry.addData("Duck Speed", duckPower);
+            duckPower = -0.55;
         }
-        if (duckSpin2 != true && duckSpin != true) {
+        if (duckSpin2 != true) {
             duckPower = 0;
-            duckCounter = 0;
-        }
-
-        if (gamepad2.a == true) {
-            armRotateSpeed = -0.32;
-            telemetry.addData("Held speed", armRotateSpeed);
-            telemetry.update();
         }
 
 
@@ -382,18 +375,65 @@ public class DriveTestAmrit2 extends OpMode {
 
 
 
-        intakeMotor.setPower(-intakePower);
 
-        armRotateMotor.setPower(armRotateSpeed);
-        armExtendMotor.setPower(armExtend);
+        counter +=1;
 
-        duck_wheel.setPower(duckPower);
+        if (counter < 5) {
+            motorValues.add("_");
+            motorValues.add("-");
+            motorValues.add("_");
+            motorValues.add("/");
 
-        telemetry.addData("Arm Movement Speed", armRotateSpeed);
+        }
+
+        if (counter == 5) {
+            motorValues.add(toString().valueOf(topRightDiagonal));
+            motorValues.add("-");
+            motorValues.add(toString().valueOf(topLeftDiagonal));
+
+            motorValues.add("/");
+
+            counter = 0;
+        }
+
+
+
+        try {
+
+            myWriter.write(String.valueOf(motorValues));
+
+            telemetry.addData("Done", "-");
+            telemetry.update();
+        } catch (IOException e) {
+            telemetry.addData("error", "-");
+            telemetry.update();
+            e.printStackTrace();
+        }
+
+
+
+        telemetry.addData("Motor Values", motorValues);
         telemetry.update();
 
 
 
 
+
+
+
+
+
+
     }
+    @Override
+    public void stop(){
+        try {
+            myWriter = new FileWriter("TeleopMovementData.txt");
+            myWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }
