@@ -118,6 +118,10 @@ public class DriveTestAmrit2 extends OpMode {
 
         capPressed = false;
         capSpeed = 0.75;
+        
+        touch_extend.setMode(DigitalChannel.Mode.INPUT);
+        touch_retract.setMode(DigitalChannel.Mode.INPUT);
+
 
 
 
@@ -368,6 +372,19 @@ public class DriveTestAmrit2 extends OpMode {
             armRotateSpeed = -0.32;
             telemetry.addData("Held speed", armRotateSpeed);
             telemetry.update();
+        }
+        
+        if (touch_extend.getState() == true) {
+            telemetry.addData("Not pressed" : "touch_extend");
+        }
+        if (touch_extend.getState() == false
+            telemetry.addData("pressed" : "touch_extend");
+        }
+        if (touch_retract.getState() == true) {
+            telemetry.addData("Not pressed" : "touch_retract");
+        }
+        if (touch_retract.getState() == false
+            telemetry.addData("pressed" : "touch_retract");
         }
 
 
