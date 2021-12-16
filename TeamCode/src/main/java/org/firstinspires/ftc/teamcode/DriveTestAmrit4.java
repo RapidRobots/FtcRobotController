@@ -323,6 +323,7 @@ public class DriveTestAmrit4 extends OpMode {
             if (rotate > 0.75) {
                 rotate = 0.75;
             }
+            telemetry.addData("rotate : ", -1*rotate);
             leftFrontMotor.setPower(-rotate);
             rightBackMotor.setPower(-rotate);//negs
 
@@ -333,6 +334,7 @@ public class DriveTestAmrit4 extends OpMode {
             if (rotate < -0.75) {
                 rotate = -0.75;
             }
+            telemetry.addData("rotate : ", -1*rotate);
             leftFrontMotor.setPower(-rotate);
             rightBackMotor.setPower(-rotate);//negs
 
@@ -477,7 +479,7 @@ public class DriveTestAmrit4 extends OpMode {
 
 
         if (duckSpin == true) {
-            duckPower = 0.46;
+            duckPower = 0.5;
 
             telemetry.addData("Duck Speed", duckPower);
         }
@@ -487,7 +489,7 @@ public class DriveTestAmrit4 extends OpMode {
         }
 
         if (duckSpin2 == true) {
-            duckPower = -0.46;
+            duckPower = -0.5;
 
             telemetry.addData("Duck Speed", duckPower);
         }
@@ -502,9 +504,6 @@ public class DriveTestAmrit4 extends OpMode {
             telemetry.update();
         }
 
-        if(gamepad1.right_bumper == true) {
-            duckWheel();
-        }
 
 
 
@@ -520,11 +519,14 @@ public class DriveTestAmrit4 extends OpMode {
 
 
 
-        leftFrontMotor.setPower(topLeftDiagonal);
-        rightBackMotor.setPower(-topLeftDiagonal);//-
+        if (rotate != 0.0) {
+            leftFrontMotor.setPower(topLeftDiagonal);
+            rightBackMotor.setPower(-topLeftDiagonal);//-
 
-        rightFrontMotor.setPower(-topRightDiagonal);//-
-        leftBackMotor.setPower(topRightDiagonal);
+            rightFrontMotor.setPower(-topRightDiagonal);//-
+            leftBackMotor.setPower(topRightDiagonal);
+        }
+
 
 
 
